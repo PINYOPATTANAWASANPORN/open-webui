@@ -44,8 +44,20 @@ def parse_redis_url(url: str) -> dict[str, Any]:
     parts: ParseResult = urlparse(url)
     if parts.scheme not in _ACCEPTED_SCHEMES:
         raise ValueError(f"Invalid Redis URL scheme '{parts.scheme}'; expected 'redis' or 'rediss'.")
+    
+    netloc = parts.netloc
+    if '@' in netloc:
+        netloc = netloc.rsplit('@', 1)[1]
+    if netloc.startswith('['):
+        end_bracket = netloc.find(']')
+        service = netloc[1:end_bracket] if end_bracket != -1 else netloc
+    elif ':' in netloc:
+        service = netloc.split(':', 1)[0]
+    else:
+        service = netloc
+
     return {
-        'service': parts.hostname or 'mymaster',
+        'service': service or 'mymaster',
         'port': parts.port or 6379,
         'db': int(parts.path.lstrip('/') or '0'),
         'username': parts.username or None,
