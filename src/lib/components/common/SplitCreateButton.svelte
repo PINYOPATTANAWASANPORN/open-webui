@@ -83,27 +83,16 @@
 				<DropdownMenu className="min-w-[10.625rem]">
 					{#each visibleActions as action (action.id)}
 						{@const Icon = getActionIcon(action.id)}
-						{#if action.href}
-							<a
-								href={action.href}
-								on:click={() => {
-									showMenu = false;
-								}}
-							>
-								<Icon className="size-3.5" />
-								<span class="self-center truncate">{action.label}</span>
-							</a>
-						{:else}
-							<button
-								on:click={async () => {
-									await action.onClick?.();
-									showMenu = false;
-								}}
-							>
-								<Icon className="size-3.5" />
-								<span class="self-center truncate">{action.label}</span>
-							</button>
-						{/if}
+						<button
+							type="button"
+							on:click={async () => {
+								showMenu = false;
+								await runAction(action);
+							}}
+						>
+							<Icon className="size-3.5" />
+							<span class="self-center truncate">{action.label}</span>
+						</button>
 					{/each}
 				</DropdownMenu>
 			</div>
