@@ -156,11 +156,11 @@
 
 	const feedbacksToCsv = (feedbacks) => {
 		const rows = feedbacks.map((f) => {
-			const { data, ...rest } = f;
+			const { data, meta, ...rest } = f;
 			return {
 				id: rest.id,
 				user_id: rest.user_id,
-				chat_id: data?.chat_id ?? '',
+				chat_id: meta?.chat_id ?? data?.chat_id ?? '',
 				model_id: data?.model_id ?? '',
 				sibling_model_ids: (data?.sibling_model_ids ?? []).join(';'),
 				rating: data?.rating ?? '',
