@@ -1321,9 +1321,15 @@ export const getTimeRange = (timestamp) => {
 	const dateMonth = date.getMonth();
 	const dateYear = date.getFullYear();
 
+	const yesterday = new Date(nowYear, nowMonth, nowDate - 1);
+
 	if (nowYear === dateYear && nowMonth === dateMonth && nowDate === dateDate) {
 		return 'Today';
-	} else if (nowYear === dateYear && nowMonth === dateMonth && nowDate - dateDate === 1) {
+	} else if (
+		dateYear === yesterday.getFullYear() &&
+		dateMonth === yesterday.getMonth() &&
+		dateDate === yesterday.getDate()
+	) {
 		return 'Yesterday';
 	} else if (diffDays <= 7) {
 		return 'Previous 7 days';
