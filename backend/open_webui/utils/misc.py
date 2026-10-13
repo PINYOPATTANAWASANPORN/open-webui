@@ -627,15 +627,18 @@ def get_last_assistant_message(messages: list[dict]) -> str | None:
     return None
 
 
+SYSTEM_MESSAGE_ROLES = {'system', 'developer'}
+
+
 def get_system_message(messages: list[dict]) -> dict | None:
     for message in messages:
-        if message['role'] == 'system':
+        if message.get('role') in SYSTEM_MESSAGE_ROLES:
             return message
     return None
 
 
 def remove_system_message(messages: list[dict]) -> list[dict]:
-    return [message for message in messages if message['role'] != 'system']
+    return [message for message in messages if message.get('role') not in SYSTEM_MESSAGE_ROLES]
 
 
 def pop_system_message(messages: list[dict]) -> tuple[dict | None, list[dict]]:
@@ -653,9 +656,13 @@ def merge_system_messages(messages: list[dict]) -> list[dict]:
     """
     system_contents: list[str] = []
     other_messages: list[dict] = []
+    system_role = 'system'
 
     for message in messages:
-        if message.get('role') == 'system':
+        role = message.get('role')
+        if role in SYSTEM_MESSAGE_ROLES:
+            if not system_contents and role == 'developer':
+                system_role = 'developer'
             content = get_content_from_message(message)
             if content:
                 system_contents.append(content)
@@ -665,7 +672,7 @@ def merge_system_messages(messages: list[dict]) -> list[dict]:
     if not system_contents:
         return other_messages
 
-    merged = {'role': 'system', 'content': '\n'.join(system_contents)}
+    merged = {'role': system_role, 'content': '\n'.join(system_contents)}
     return [merged, *other_messages]
 
 
@@ -687,7 +694,7 @@ def update_message_content(message: dict, content: str, append: bool = True) -> 
 
 def replace_system_message_content(content: str, messages: list[dict]) -> dict:
     for message in messages:
-        if message['role'] == 'system':
+        if message.get('role') in SYSTEM_MESSAGE_ROLES:
             message['content'] = content
             break
     return messages
@@ -703,7 +710,7 @@ def add_or_update_system_message(content: str, messages: list[dict], append: boo
     :return: The updated list of message dictionaries.
     """
 
-    if messages and messages[0].get('role') == 'system':
+    if messages and messages[0].get('role') in SYSTEM_MESSAGE_ROLES:
         messages[0] = update_message_content(messages[0], content, append)
     else:
         # Insert at the beginning
